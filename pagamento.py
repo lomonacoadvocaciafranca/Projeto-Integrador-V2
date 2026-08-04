@@ -3,15 +3,18 @@ import requests
 import uuid
 
 API_URL = "http://127.0.0.1:8000"
+VALOR_FRETE = 5.00  # Taxa fixa de frete definida
 
 def processar_pagamento(metodo):
-    """Executa a chamada HTTP para gravar o pedido no backend"""
     numero = str(uuid.uuid4()).split('-')[0].upper()
     cli = st.session_state.cliente
     endereco_formatado = f"{cli['logradouro']}, {cli['numero']} - {cli['bairro']} ({cli['cidade']}/{cli['uf']})"
-    taxa_entrega = 5.00
+    
+    # 1. Calcula o subtotal dos produtos no carrinho
     subtotal = sum(float(c.get('preco', 0.0)) for c in st.session_state.carrinho)
-    total = subtotal + taxa_entrega
+    
+    # 2. Soma o frete obrigatoriamente para obter o total geral correto
+    total = subtotal + VALOR_FRETE
     
     itens_payload = [
         {
@@ -24,7 +27,7 @@ def processar_pagamento(metodo):
     payload_pedido = {
         "numero": numero,
         "cliente_cpf": str(cli["cpf"]),
-        "total": total,
+        "total": total,  # Envia o valor total correto já com o frete incluso
         "status": "Recebido",
         "endereco": endereco_formatado,
         "metodo_pagamento": metodo,
@@ -40,16 +43,12 @@ def processar_pagamento(metodo):
             st.session_state.carrinho = []
             st.rerun()
         else:
-            try:
-                detalhe = res.json().get("detail", "Erro ao gravar pedido.")
-            except Exception:
-                detalhe = res.text
-            st.error(f"Falha ao processar pedido ({res.status_code}): {detalhe}")
+            detalhe = res.json().get("detail", "Erro ao gravar pedido.")
+            st.error(f"Falha ({res.status_code}): {detalhe}")
     except Exception as e:
         st.error(f"Erro de conexão: {e}")
 
 def renderizar_modulo_pagamento():
-    """Interface gráfica exclusiva do Checkout e Pagamento"""
     st.title("🛒 Checkout e Pagamento")
     cli = st.session_state.cliente
     
@@ -70,16 +69,17 @@ def renderizar_modulo_pagamento():
         
         st.divider()
         st.subheader("2. Resumo do Pedido")
-        subtotal = sum(c.get('preco', 0.0) for c in st.session_state.carrinho)
-        taxa_entrega = 5.00
-        total = subtotal + taxa_entrega
+        
+        # Garante a exibição visual correta do frete na tela de pagamento
+        subtotal = sum(float(c.get('preco', 0.0)) for c in st.session_state.carrinho)
+        total_geral = subtotal + VALOR_FRETE
         
         for c in st.session_state.carrinho:
             st.write(f"- {c.get('nome')} (R$ {c.get('preco', 0.0):.2f})")
             
         st.write(f"**Subtotal:** R$ {subtotal:.2f}")
-        st.write(f"**Taxa de Entrega:** R$ {taxa_entrega:.2f}")
-        st.markdown(f"### **Total:** R$ {total:.2f}")
+        st.write(f"**Taxa de Entrega (Frete):** R$ {VALOR_FRETE:.2f}")
+        st.markdown(f"### **Total Geral:** R$ {total_geral:.2f}")
         
         if st.button("⬅️ Voltar ao Carrinho"):
             st.session_state.modo_checkout = False
@@ -96,7 +96,6 @@ def renderizar_modulo_pagamento():
             
             if st.button("Simular Pagamento PIX (Aprovar)", type="primary"):
                 processar_pagamento("PIX")
-                
         else:
             numero_cartao = st.text_input("Número do Cartão (16 dígitos)", max_chars=16)
             c_val, c_cvv = st.columns(2)
