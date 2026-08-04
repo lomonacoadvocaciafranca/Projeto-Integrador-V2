@@ -1,0 +1,28 @@
+O aplicativo terá a seguinte arquitetura:
+
+1. Sprint 0: Arquitetura e Base Técnica (Prioridade Máxima)
+•	Tarefa 1: Modelar e criar o banco de dados relacional (SQL) para armazenar o catálogo de produtos, perfis de usuários e histórico de pedidos.
+•	Tarefa 2: Configurar os repositórios do back-end (Python) para processar as regras de negócio e do front-end web/admin (HTML/JavaScript).
+•	Tarefa 3: Inicializar e estruturar o projeto do aplicativo.
+
+2. MVP: Jornada Básica de Compra (Alta Prioridade)
+As funcionalidades estritamente necessárias para um cliente conseguir abrir a tela, escolher um cupcake e finalizar um pedido básico.
+•	US01: Visualizar Catálogo de Cupcakes na vitrine.
+•	US02: Ver Detalhes do Produto.
+o	Sub-tarefa Técnica: Implementar um módulo de cálculo e exibição dinâmica de tabelas nutricionais e laudos de alergênicos padronizados para cada receita.
+•	US04: Adicionar ao Carrinho.
+•	US06: Cálculo do Total e Resumo (Garantir cálculo de subtotal antes do fechamento).
+•	US09: Cadastro de Endereço e Cálculo de Frete.
+
+3. Pagamento e Flexibilidade (Média Prioridade)
+Garantindo que a transação financeira ocorra com segurança e que o usuário tenha controle sobre suas escolhas.
+•	US07: Escolher Múltiplos Métodos de Pagamento (Integração de APIs de gateway para PIX dinâmico e validação de Cartão de Crédito).
+•	US05: Gerenciar Carrinho de Compras (Alterar quantidades e remover itens).
+•	US08: Receber Confirmação de Transação (Gerar número de recibo e integrar disparo automá-tico de e-mail).
+
+4. Refinamento de Experiência e Logística (Baixa Prioridade / Próximas Fases)
+Recursos que tornam a experiência excelente e facilitam a operação diária, mas que podem entrar em uma segunda versão do aplicativo.
+•	US03: Utilizar Filtros e Categorias na vitrine (Navegação avançada).
+•	US10: Acompanhamento de Status do Pedido.
+o	Sub-tarefa Técnica: Estruturar a lógica de roteirização e regras de logística de last-mile (última milha) para que as atualizações de despacho cheguem em tempo real ao cliente.
+•	Tarefa 4: Desenvolver um dashboard interno interativo para a administração da loja, focado em cruzar dados de faturamento, vendas por sabor e volume de acessos diários.
