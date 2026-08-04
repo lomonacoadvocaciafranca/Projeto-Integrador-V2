@@ -1,18 +1,14 @@
 import sqlite3
 
-# Conecta ao banco de dados (cria o arquivo 'cupcakes.db' se não existir)
 conn = sqlite3.connect('cupcakes.db')
 cursor = conn.cursor()
 
-# Executa o script SQL para estruturar o banco com tabelas de clientes e pedidos
 cursor.executescript('''
-    -- 1. Remove as tabelas antigas para reinicialização limpa
     DROP TABLE IF EXISTS itens_pedido;
     DROP TABLE IF EXISTS pedidos;
     DROP TABLE IF EXISTS cupcakes;
     DROP TABLE IF EXISTS clientes;
 
-    -- 2. Tabela de cupcakes
     CREATE TABLE cupcakes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
@@ -26,7 +22,6 @@ cursor.executescript('''
         alergicos TEXT
     );
 
-    -- 3. Tabela de clientes
     CREATE TABLE clientes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         cpf TEXT UNIQUE NOT NULL,
@@ -41,7 +36,6 @@ cursor.executescript('''
         uf TEXT NOT NULL
     );
 
-    -- 4. Tabela de pedidos
     CREATE TABLE pedidos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         numero TEXT UNIQUE NOT NULL,
@@ -54,7 +48,6 @@ cursor.executescript('''
         FOREIGN KEY (cliente_cpf) REFERENCES clientes(cpf)
     );
 
-    -- 5. Tabela de itens vinculados aos pedidos
     CREATE TABLE itens_pedido (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         pedido_numero TEXT NOT NULL,
@@ -64,30 +57,20 @@ cursor.executescript('''
         FOREIGN KEY (pedido_numero) REFERENCES pedidos(numero)
     );
 
-    -- 6. Inserção de dados iniciais de cupcakes
     INSERT INTO cupcakes (
-        nome, 
-        descricao, 
-        preco, 
-        imagem, 
-        estoque, 
-        destaque, 
-        ingredientes, 
-        informacao_nutricional, 
-        alergicos
+        nome, descricao, preco, imagem, estoque, destaque, ingredientes, informacao_nutricional, alergicos
     ) VALUES 
     (
-        'Cupcake de Limão', 'Massa cítrica com merengue tostado', 8.00, 'https://via.placeholder.com/150/ccffcc/000000?text=Limao', 20, 0, 'Farinha, açúcar, suco de limão, claras em neve.', 'Porção 100g: 300kcal.', 'Contém glúten.'
+        'Cupcake de Limão', 'Massa cítrica com merengue tostado', 8.00, 'https://images.unsplash.com/photo-1550617931-e17a7b70dce2?auto=format&fit=crop&w=400&q=80', 20, 0, 'Farinha, açúcar, suco de limão, claras em neve.', 'Porção 100g: 300kcal.', 'Contém glúten.'
     ),
     (
-        'Cupcake de Chocolate', 'Massa de cacau com cobertura de ganache', 9.50, 'https://via.placeholder.com/150/4d2600/ffffff?text=Chocolate', 15, 1, 'Farinha, cacau 70%, açúcar, leite, manteiga.', 'Porção 100g: 380kcal.', 'Contém glúten e lactose.'
+        'Cupcake de Chocolate', 'Massa de cacau com cobertura de ganache', 9.50, 'https://images.unsplash.com/photo-1614707267537-b85aaf00c4b7?auto=format&fit=crop&w=400&q=80', 15, 1, 'Farinha, cacau 70%, açúcar, leite, manteiga.', 'Porção 100g: 380kcal.', 'Contém glúten e lactose.'
     ),
     (
-        'Cupcake Red Velvet', 'Tradicional red velvet com cream cheese', 10.00, 'https://via.placeholder.com/150/800000/ffffff?text=Red+Velvet', 10, 1, 'Farinha, cacau, corante vermelho, cream cheese.', 'Porção 100g: 350kcal.', 'Contém glúten, lactose e ovos.'
+        'Cupcake Red Velvet', 'Tradicional red velvet com cream cheese', 10.00, 'https://images.unsplash.com/photo-1616541823729-00fe0aacd32c?auto=format&fit=crop&w=400&q=80', 10, 1, 'Farinha, cacau, corante vermelho, cream cheese.', 'Porção 100g: 350kcal.', 'Contém glúten, lactose e ovos.'
     );
 ''')
 
 conn.commit()
 conn.close()
-
-print("Banco de dados 'cupcakes.db' atualizado com tabelas de pedidos e itens!")
+print("Banco de dados 'cupcakes.db' criado com sucesso!")
