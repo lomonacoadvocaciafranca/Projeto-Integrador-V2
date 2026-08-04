@@ -1,0 +1,69 @@
+1. Vitrine Virtual
+
+US01: Visualizar Catálogo de Cupcakes
+•	História: Como cliente, eu quero visualizar uma lista de cupcakes disponíveis na tela inicial para poder escolher os meus favoritos (somente web).
+•	Critérios de Aceite:
+o	O aplicativo deve exibir imagens de alta qualidade dos cupcakes.
+o	Cada item deve mostrar o nome, uma breve descrição e o preço.
+o	Produtos esgotados devem aparecer com uma tag de "Indisponível".
+
+US02: Detalhes do Produto
+•	História: Como cliente, eu quero clicar em um cupcake específico e ver seus detalhes para sa-ber os ingredientes e evitar problemas com alergias.
+•	Critérios de Aceite:
+o	A tela de detalhes deve mostrar a lista completa de ingredientes, tabela nutricional e informações sobre alergênicos (ex: contém glúten, lactose).
+o	Deve haver um campo para selecionar a quantidade desejada.
+
+US03: Filtros e Categorias
+•	História: Como cliente, eu quero filtrar os cupcakes por categorias (ex: Veganos, Tradicionais, Zero Açúcar) para encontrar rapidamente o que se adequa à minha dieta.
+•	Critérios de Aceite:
+o	Menu de filtros visível e de fácil acesso na vitrine.
+o	A vitrine deve atualizar instantaneamente ao aplicar um filtro.
+
+2. Pedido Eletrônico
+US04: Adicionar ao Carrinho
+
+•	História: Como cliente, eu quero adicionar diferentes cupcakes ao meu carrinho de compras para poder fazer um único pedido com vários sabores.
+•	Critérios de Aceite:
+o	Um botão de "Adicionar ao Carrinho" deve estar visível na vitrine e na tela de detalhes.
+o	Um ícone de carrinho no topo da tela deve atualizar o número de itens em tempo real.
+
+US05: Gerenciar Carrinho de Compras
+•	História: Como cliente, eu quero abrir meu carrinho para revisar, alterar quantidades ou remo-ver itens antes de prosseguir para o pagamento.
+•	Critérios de Aceite:
+o	A tela do carrinho deve listar todos os itens, quantidades e subtotal.
+o	Botões de "+" e "-" para alterar a quantidade de cada item.
+o	Botão de "lixeira" para remover um item completamente.
+
+3. Pagamento
+
+US06: Cálculo do Total e Resumo
+•	História: Como cliente, eu quero ver um resumo claro do meu pedido, incluindo o valor total e o custo do frete, para não ter surpresas na hora de pagar.
+•	Critérios de Aceite:
+o	A tela de check out deve discriminar: Subtotal dos produtos, Taxa de Entrega e Valor Total.
+
+US07: Múltiplos Métodos de Pagamento
+•	História: Como cliente, eu quero poder escolher entre pagar via PIX, Cartão de Crédito ou Débi-to para utilizar o método mais conveniente para mim.
+•	Critérios de Aceite:
+o	Integração segura com gateway de pagamento.
+o	Para PIX, o aplicativo deve gerar o "Copia e Cola" e o QR Code.
+o	Para cartão, deve haver validação automática da bandeira e formato do número.
+
+US08: Confirmação de Transação
+•	História: Como cliente, eu quero receber uma confirmação imediata na tela e por e-mail assim que o pagamento for aprovado, para ter segurança de que a compra deu certo.
+•	Critérios de Aceite:
+o	Tela de sucesso com o número do pedido gerado.
+o	Disparo automático de e-mail com o recibo.
+
+4. Entrega
+
+US09: Cadastro de Endereço e Cálculo de Frete
+•	História: Como cliente, eu quero inserir meu CEP para que o aplicativo calcule automaticamente o valor e o tempo de entrega.
+•	Critérios de Aceite:
+o	Integração com API de mapas ou Correios/Logística para validação de CEP.
+o	Campo para inserir complementos (bloco, apartamento, ponto de referência).
+
+US10: Acompanhamento de Status do Pedido
+•	História: Como cliente, eu quero acompanhar o status do meu pedido (Recebido, Em Preparo, Saiu para Entrega, Entregue) para saber exatamente quando meus cupcakes chegarão.
+•	Critérios de Aceite:
+o	Uma aba de "Meus Pedidos" com uma linha do tempo visual do status atual.
+o	Notificações push enviadas ao usuário a cada mudança de status (opcional).
