@@ -1,12 +1,10 @@
 import streamlit as st
 import requests
-import time
 from pagamento import renderizar_modulo_pagamento
 from rastreamento import renderizar_modulo_rastreamento
 
 st.set_page_config(page_title="Loja de Cupcakes", page_icon="🧁", layout="wide")
 
-# Inicialização de variáveis de sessão
 for key, default in [
     ("cliente", None),
     ("cupcake_selecionado", None),
@@ -23,6 +21,7 @@ for key, default in [
         st.session_state[key] = default
 
 API_URL = "http://127.0.0.1:8000"
+VALOR_FRETE = 5.00
 
 def buscar_cep(cep):
     try:
@@ -43,24 +42,27 @@ def preencher_endereco_por_cep():
         st.session_state["form_cidade"] = dados.get("localidade", "")
         st.session_state["form_uf"] = dados.get("uf", "")
 
-# 1. ROTEAMENTO: CADASTRO/LOGIN
+# 1. TELA DE LOGIN / CADASTRO
 if st.session_state.cliente is None:
     st.title("👋 Bem-vindo à Loja de Cupcakes!")
     col_cpf, col_btn = st.columns([3, 1])
     with col_cpf:
-        cpf_input = st.text_input("Informe seu CPF", max_chars=11, key="cpf_busca")
+        cpf_input = st.text_input("Informe seu CPF (somente números)", max_chars=14, key="cpf_busca")
     with col_btn:
         st.write(" ")
         st.write(" ")
         if st.button("Buscar Cadastro", use_container_width=True):
-            if len(cpf_input) == 11:
+            cpf_limpo = "".join(filter(str.isdigit, cpf_input))
+            if len(cpf_limpo) == 11:
                 try:
-                    res = requests.get(f"{API_URL}/clientes/{cpf_input}")
+                    res = requests.get(f"{API_URL}/clientes/{cpf_limpo}")
                     if res.status_code == 200:
                         st.session_state.cliente = res.json()
                         st.rerun()
+                    else:
+                        st.warning("CPF não encontrado. Preencha o cadastro abaixo.")
                 except Exception:
-                    st.error("Erro na busca.")
+                    st.error("Erro na conexão com o backend.")
 
     st.divider()
     st.markdown("### Novo Cadastro")
@@ -88,31 +90,41 @@ if st.session_state.cliente is None:
         uf = st.text_input("UF*", max_chars=2, key="form_uf")
 
     if st.button("Salvar e Entrar", type="primary"):
-        payload = {
-            "cpf": cpf_input, "nome": nome, "telefone": telefone,
-            "cep": cep, "logradouro": logradouro, "numero": numero,
-            "complemento": complemento, "bairro": bairro, "cidade": cidade, "uf": uf
-        }
-        try:
-            res = requests.post(f"{API_URL}/clientes", json=payload)
-            if res.status_code == 200:
-                st.session_state.cliente = payload
-                st.rerun()
-        except Exception as e:
-            st.error(f"Erro: {e}")
+        cpf_limpo = "".join(filter(str.isdigit, cpf_input))
+        if len(cpf_limpo) != 11:
+            st.error("Digite um CPF válido com 11 dígitos.")
+        else:
+            payload = {
+                "cpf": cpf_limpo, "nome": nome, "telefone": telefone,
+                "cep": cep, "logradouro": logradouro, "numero": numero,
+                "complemento": complemento, "bairro": bairro, "cidade": cidade, "uf": uf
+            }
+            try:
+                res = requests.post(f"{API_URL}/clientes", json=payload)
+                if res.status_code == 200:
+                    st.session_state.cliente = payload
+                    st.rerun()
+                else:
+                    st.error(f"Erro ao salvar: {res.json().get('detail', 'Erro')}")
+            except Exception as e:
+                st.error(f"Erro: {e}")
     st.stop()
 
-# 2. ROTEAMENTO: MÓDULO DE RASTREAMENTO
 if st.session_state.pedido_finalizado:
     renderizar_modulo_rastreamento()
     st.stop()
 
-# 3. ROTEAMENTO: MÓDULO DE PAGAMENTO
 if st.session_state.modo_checkout:
+    # Garante que o valor do frete e o total atualizado estejam disponíveis no session_state para o módulo de pagamento
+    subtotal = sum(c.get('preco', 0.0) for c in st.session_state.carrinho)
+    st.session_state["valor_subtotal"] = subtotal
+    st.session_state["valor_frete"] = VALOR_FRETE
+    st.session_state["valor_total"] = subtotal + VALOR_FRETE
+    
     renderizar_modulo_pagamento()
     st.stop()
 
-# 4. TELA PRINCIPAL DA LOJA (VITRINE)
+# 2. VITRINE DE CUPCAKES
 col_h, col_u = st.columns([3, 1])
 with col_h:
     st.title("🧁 Loja de Cupcakes")
@@ -134,23 +146,31 @@ with aba_loja:
     c_vit, c_det = st.columns([2, 1])
     with c_vit:
         for item in cupcakes:
-            st.markdown(f"### {item.get('nome')}")
-            st.write(f"Preço: R$ {item.get('preco'):.2f}")
-            b1, b2 = st.columns(2)
-            with b1:
-                if st.button("👁️ Detalhes", key=f"d_{item.get('id')}"):
-                    st.session_state.cupcake_selecionado = item
-                    st.rerun()
-            with b2:
-                if st.button("🛒 Adicionar", key=f"a_{item.get('id')}"):
-                    st.session_state.carrinho.append(item)
-                    st.toast("Item adicionado!")
+            col_img, col_info = st.columns([1, 2])
+            with col_img:
+                if item.get('imagem'):
+                    st.image(item.get('imagem'), width='stretch')
+            with col_info:
+                st.markdown(f"### {item.get('nome')}")
+                st.write(f"**Preço:** R$ {item.get('preco'):.2f}")
+                st.write(f"_{item.get('descricao')}_")
+                b1, b2 = st.columns(2)
+                with b1:
+                    if st.button("👁️ Detalhes", key=f"d_{item.get('id')}"):
+                        st.session_state.cupcake_selecionado = item
+                        st.rerun()
+                with b2:
+                    if st.button("🛒 Adicionar", key=f"a_{item.get('id')}"):
+                        st.session_state.carrinho.append(item)
+                        st.toast("Item adicionado!")
             st.divider()
 
     with c_det:
         if st.session_state.cupcake_selecionado:
             item = st.session_state.cupcake_selecionado
             st.markdown(f"### 🔍 {item.get('nome')}")
+            if item.get('imagem'):
+                st.image(item.get('imagem'), width='stretch')
             st.write(f"**Ingredientes:** {item.get('ingredientes', 'N/A')}")
             st.write(f"**Alérgicos:** {item.get('alergicos', 'Nenhum')}")
             if st.button("❌ Fechar Detalhes"):
@@ -160,11 +180,24 @@ with aba_loja:
 
         st.subheader("🛒 Carrinho")
         if st.session_state.carrinho:
-            subt = sum(c.get('preco', 0.0) for c in st.session_state.carrinho)
-            for c in st.session_state.carrinho:
-                st.write(f"- {c.get('nome')} (R$ {c.get('preco'):.2f})")
-            st.write(f"**Subtotal:** R$ {subt:.2f}")
-            if st.button("💳 Ir para o Pagamento", type="primary"):
+            subtotal = sum(c.get('preco', 0.0) for c in st.session_state.carrinho)
+            total_geral = subtotal + VALOR_FRETE
+            
+            for idx, c in enumerate(st.session_state.carrinho):
+                col_item_nome, col_item_btn = st.columns([3, 1])
+                with col_item_nome:
+                    st.write(f"- {c.get('nome')} (R$ {c.get('preco'):.2f})")
+                with col_item_btn:
+                    if st.button("🗑️", key=f"del_cart_{idx}"):
+                        st.session_state.carrinho.pop(idx)
+                        st.rerun()
+
+            st.divider()
+            st.write(f"**Subtotal:** R$ {subtotal:.2f}")
+            st.write(f"**Frete (Taxa Fixa):** R$ {VALOR_FRETE:.2f}")
+            st.markdown(f"### **Total:** R$ {total_geral:.2f}")
+            
+            if st.button("💳 Ir para o Pagamento", type="primary", use_container_width=True):
                 st.session_state.modo_checkout = True
                 st.rerun()
         else:
@@ -177,6 +210,8 @@ with aba_pedidos:
         if res_p.status_code == 200:
             for p in res_p.json():
                 with st.expander(f"Pedido #{p['numero']} - {p['status']} (R$ {p['total']:.2f})"):
-                    st.write(f"Entrega: {p['endereco']}")
+                    st.write(f"**Endereço de Entrega:** {p['endereco']}")
+                    st.write(f"**Método de Pagamento:** {p['metodo_pagamento']}")
+                    st.write(f"**Data:** {p['data_criacao']}")
     except Exception as e:
         st.error(f"Erro ao carregar histórico: {e}")
