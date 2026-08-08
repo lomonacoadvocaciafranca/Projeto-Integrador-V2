@@ -61,9 +61,3 @@ US09: Cadastro de Endereço e Cálculo de Frete
 •	Critérios de Aceite:
 o	Integração com API de mapas ou Correios/Logística para validação de CEP.
 o	Campo para inserir complementos (bloco, apartamento, ponto de referência).
-
-US10: Acompanhamento de Status do Pedido
-•	História: Como cliente, eu quero acompanhar o status do meu pedido (Recebido, Em Preparo, Saiu para Entrega, Entregue) para saber exatamente quando meus cupcakes chegarão.
-•	Critérios de Aceite:
-o	Uma aba de "Meus Pedidos" com uma linha do tempo visual do status atual.
-o	Notificações push enviadas ao usuário a cada mudança de status (opcional).
